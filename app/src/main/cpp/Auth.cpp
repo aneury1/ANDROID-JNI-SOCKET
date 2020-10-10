@@ -71,6 +71,44 @@ std::string getRequestFromServer(const char *url)
 }
 
 
+std::string getRequestFromServer(const char *url, const char *endpoint)
+{
+    int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    auto res =  -1;
+    sockaddr_in address;
+    memset(&address, 0x00, sizeof(address));
+    hostent *h = gethostbyname("url");
+    address.sin_port = htons(80);
+    address.sin_family = AF_INET;
+    char ip[16]={0};
+    hostname_to_ip(const_cast<char *>(url), ip);
+    inet_aton(ip, &address.sin_addr);
+    res = connect(fd, (sockaddr*)&address, sizeof(address));
+    if(res !=0 )
+    {
+        LOG_ME("SOCKET CANT CONNECT");
+        return std::string("cant connect");
+    }
+    std::string request = "GET ";
+                request += endpoint;
+                request += " HTTP/1.1\r\n";
+                request += "Host: ";
+                request += url;
+                request += "\r\nConnection: close\r\n\r\n";
+                        ////index.html HTTP/1.1\r\nHost: google.com";
+    char buffer[4096]={0};
+    res = send(fd, request.c_str(), request.size(), 0);
+    res = recv(fd, buffer, 4095, 0);
+    shutdown(fd, SHUT_RDWR);
+    ///close(fd);
+    return (res>0)?std::string(buffer):"No Data Available";
+}
+
+
+
+
+
+
 
 extern "C" JNIEXPORT jstring
 Java_info_aneury_androidtuto_MainActivity_getHelloWorld(JNIEnv* env, jobject thiz){
@@ -88,5 +126,16 @@ Java_info_aneury_androidtuto_MainActivity_getRequestByUrl(JNIEnv *env, jobject t
             ///"hello World From ndk world"
             ///
             getRequestFromServer((const char *)env->GetStringUTFChars(url, 0)).c_str()
+    );
+}extern "C"
+JNIEXPORT jstring JNICALL
+Java_info_aneury_androidtuto_MainActivity_getRequestByUrlAndEndPoint(JNIEnv *env, jobject thiz,
+                                                                     jstring url,
+                                                                     jstring endpoint) {
+    return (env)->NewStringUTF(
+            ///"hello World From ndk world"
+            ///
+            getRequestFromServer((const char *)env->GetStringUTFChars(url, 0),
+                                 (const char *)env->GetStringChars(endpoint, 0)).c_str()
     );
 }
