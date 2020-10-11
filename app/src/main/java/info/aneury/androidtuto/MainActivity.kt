@@ -9,7 +9,7 @@ import kotlinx.coroutines.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
-///https://drive.google.com/drive/folders/0B9-wBXSAHyOSfnhWUU96eG14SEpwSU9yWnpfcEJ3WDJIM194bWlPTjJlZDh1UGRMczZJelE
+ 
 class MainActivity : AppCompatActivity() {
 
 
